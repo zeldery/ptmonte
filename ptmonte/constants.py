@@ -5,5 +5,11 @@ Last modified: 2017
 File: simulation
 '''
 
-PLANK = 6.636
-BOLTZMANN = 1.6
+# Temperature in K
+# Pressure in Pa
+# Energy in 1/kB K unit (standard energy divided by Boltzmann constant
+
+DE_BROGLIE = 17.458
+BOLTZMANN_ANGSTROM = 1.38065e7
+
+
