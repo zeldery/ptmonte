@@ -51,7 +51,23 @@ class ForceField:
         
     def set_index(self,container): # Set a_index
         for a in container.atoms:
-            a.p_index = self.p_type.index(a.a_type) # This way does not work out
+            good = False
+            for num, p_type in enumerate(self.p_type):
+                if a.a_type == p_type:
+                    good = True
+                    a.p_index = num
+                    break
+            if not good:
+                for num, p_type in enumerate(self.p_type):
+                    if p_type.find('_') != -1:
+                        ind = p_type.find('_')
+                        if p_type[:ind] == a.a_type[:ind]:
+                            good = True
+                            a.p_index = num
+                            break
+                            
+            if not good:
+                raise ValueError('The program cannot detect the type '+a.a_type+' in the Force Field')
         
     def pair(self,a,b):
         r2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2
