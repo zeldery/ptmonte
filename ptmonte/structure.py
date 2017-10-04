@@ -8,7 +8,7 @@ File: structure
 import random
 import numpy as np
 import math
-from atom import Atom
+from .atom import Atom
 
 # Class for Lattice
 class Lattice:
@@ -27,7 +27,7 @@ class Lattice:
         self.symmetry_z = []
         
     def init(self):
-        k = math.pi/180.0
+        k = math.pi/180.0 # radian conversion
         self.volume = self.a*self.b*self.c*math.sqrt(
             1 - math.cos(k*self.alpha)**2- math.cos(k*self.beta)**2 - math.cos(k*self.gamma)**2
             + 2 * math.cos(k*self.alpha) * math.cos(k*self.beta) * math.cos(k*self.gamma))

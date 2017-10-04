@@ -8,8 +8,8 @@ File: step
 import random
 import numpy as np
 import math
-from atom import Atom
-from constants import *
+from .atom import Atom
+from .constants import *
 
 # General class for Step
 class Step:
@@ -27,6 +27,10 @@ class Step:
         
     def accept_rate(self):
         return self.acceptance / self.total
+        
+    def reset(self):
+        self.total = 0
+        self.acceptance = 0
 
 # Translation step
 class StepTranslation(Step):
@@ -72,13 +76,15 @@ class StepAdd(Step):
         self.pressure = 0.0
         self.mu = 0.0
         self.lamb3 = 0.0 # De broglie wavelength
+        self.atom = Atom()
     
-    def init(self,mass,pressure,temperature = 273.15):
+    def init(self,atom,mass,pressure,temperature = 273.15):
         self.pressure = pressure
         self.temperature = temperature
-        self.lamb3 = PLANK / math.sqrt(2*math.pi*mass*BOLTZMANN*temperature)
+        self.lamb3 = DE_BROGLIE / math.sqrt(mass*temperature)
         self.lamb3 = self.lamb3**3
-        self.mu = BOLTZMANN * temperature * math.log(self.lamb3 * pressure / BOLTZMANN / temperature)
+        self.mu = temperature * math.log(self.lamb3 * pressure / BOLTZMANN_ANGSTROM / temperature) # Unit mu/kB in K
+        self.atom = atom.copy()
         
         
     def run(self,adsorbent = None, lattice = None, box = None):
@@ -87,7 +93,7 @@ class StepAdd(Step):
         z = random.random()
         coord = np.dot(lattice.to_cartesian,[x,y,z])
         
-        atom = Atom()
+        atom = self.atom.copy()
         atom.x = coord[0]
         atom.y = coord[1]
         atom.z = coord[2]
@@ -109,9 +115,9 @@ class StepRemove(Step):
     def init(self,mass,pressure,temperature = 273.15):
         self.pressure = pressure
         self.temperature = temperature
-        self.lamb3 = PLANK / math.sqrt(2*math.pi*mass*BOLTZMANN*temperature)
+        self.lamb3 = DE_BROGLIE / math.sqrt(mass*temperature)
         self.lamb3 = self.lamb3**3
-        self.mu = BOLTZMANN * temperature * math.log(self.lamb3 * pressure / BOLTZMANN / temperature)
+        self.mu = temperature * math.log(self.lamb3 * pressure / BOLTZMANN_ANGSTROM / temperature) # Unit mu/kB in K
         
     def run(self,adsorbent = None, lattice = None, box = None):
         if len(adsorbent.atoms) > 0 :

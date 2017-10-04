@@ -49,25 +49,32 @@ class ForceField:
                 self.p_type_missing.append(temp[0])
         f.close()
         
+    def set_atom(self,atom):
+        good = False
+        # Check for exact match
+        for num, p_type in enumerate(self.p_type):
+            if atom.a_type == p_type:
+                good = True
+                atom.p_index = num
+                break
+        # Check for partial match
+        if not good:
+            for num, p_type in enumerate(self.p_type):
+                if p_type[-1] == '_' :
+                    ind = p_type.find('_')
+                    if p_type[:ind] == atom.a_type[:ind]:
+                        good = True
+                        atom.p_index = num
+                        break
+        # Raise error when the type not match
+        if not good:
+            raise ValueError('The program cannot detect the type '+a.a_type+' in the Force Field')
+    
+    
     def set_index(self,container): # Set a_index
         for a in container.atoms:
-            good = False
-            for num, p_type in enumerate(self.p_type):
-                if a.a_type == p_type:
-                    good = True
-                    a.p_index = num
-                    break
-            if not good:
-                for num, p_type in enumerate(self.p_type):
-                    if p_type.find('_') != -1:
-                        ind = p_type.find('_')
-                        if p_type[:ind] == a.a_type[:ind]:
-                            good = True
-                            a.p_index = num
-                            break
-                            
-            if not good:
-                raise ValueError('The program cannot detect the type '+a.a_type+' in the Force Field')
+            self.set_atom(a)
+        
         
     def pair(self,a,b):
         r2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2
@@ -93,4 +100,10 @@ class ForceField:
                 en += self.pair(box.atoms[i],box.atoms[j])
         return en # Did not count periodic
 
-
+    def interaction(self,adsorbent,lattice):
+        en = 0.0
+        for atom in adsorbent.atoms:
+            en += self.one_atom(atom,lattice)
+        return en
+        
+        

@@ -8,10 +8,10 @@ File: simulation
 import math
 import numpy as np
 import random
-from atom import Atom
-from structure import Lattice,Adsorbent,Box
-from step import StepTranslation, StepAdd, StepRemove
-from forcefield import ForceField
+from .atom import Atom
+from .structure import Lattice,Adsorbent,Box
+from .step import StepTranslation, StepAdd, StepRemove
+from .forcefield import ForceField
 
 class Simulation:
     def __init__(self):
@@ -27,10 +27,19 @@ class Simulation:
     def init(self):
         pass
         
+    def single_run(self): # Change this function if you want to record the potential
+        r = random.choices(range(len(self.steps)),self.p_step)[0]
+        self.steps[r].run(lattice = self.lattice,adsorbent = self.adsorbent, box = self.box)
+        
     def run(self,n_step):
         for i in range(n_step):
-            r = random.choices(range(len(self.steps)),self.p_step)[0]
-            self.steps[r].run(lattice = self.lattice,adsorbent =  self.adsorbent,box = self.box)
+            self.single_run()
+            
+    def reset(self):
+        for step in self.steps:
+            step.reset()
+        self.record_en = []
+        self.record_adsorb = []
             
     def to_csv(self):
         pass
@@ -43,29 +52,44 @@ class GrandCanonicalSimulation(Simulation):
         self.pressure = 1.0
         self.d_max = 1.0
         self.mass = 16.0
+        self.p_step = [0.4,0.3,0.3]
         
-    def init(self,lattice_file,ff_file):
+        
+    def init(self,lattice_file,ff_file,a_type):
+        # Prepare the lattice
         self.lattice = Lattice()
         self.lattice.read_cif(lattice_file)
         self.lattice.init()
+        # Prepare the force field
         self.ff = ForceField()
         self.ff.read_raspa_def(ff_file)
         self.ff.init()
+        # Generate the adsorbent
         self.adsorbent = Adsorbent()
         self.adsorbent.copy_lattice(self.lattice)
+        # Set index for the lattice
+        self.ff.set_index(self.lattice)
+        # Add translation step
         a = StepTranslation()
         a.ff = self.ff
         a.init(self.d_max,self.temperature)
         self.steps.append(a)
+        # Add addition step
+        atom = Atom()
+        atom.a_type = a_type
+        self.ff.set_atom(atom)
         a = StepAdd()
         a.ff = self.ff
-        a.init(self.mass,self.pressure,self.temperature)
+        a.init(atom,self.mass,self.pressure,self.temperature)
         self.steps.append(a)
         a = StepRemove()
         a.ff = self.ff
         a.init(self.mass,self.pressure,self.temperature)
         self.steps.append(a)
         
-
+    def single_run(self):
+        Simulation.single_run(self)
+        # self.record_en.append(self.ff.interaction(self.adsorbent,self.lattice)+self.ff.box(self.adsorbent) )
+        self.record_adsorb.append(len(self.adsorbent.atoms))
     
 

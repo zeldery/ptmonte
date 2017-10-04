@@ -6,11 +6,11 @@ Last modified: September 2017
 File: forcefield
 '''
 
-from constants import *
-from atom import Atom
-from structure import Lattice, Adsorbent, Box
-from forcefield import ForceField
-from step import Step, StepTranslation, StepAdd, StepRemove
-from simulation import Simulation, GrandCanonicalSimulation
+from .constants import *
+from .atom import Atom
+from .structure import Lattice, Adsorbent, Box
+from .forcefield import ForceField
+from .step import Step, StepTranslation, StepAdd, StepRemove
+from .simulation import Simulation, GrandCanonicalSimulation
 
 __version__ = '0.1'
