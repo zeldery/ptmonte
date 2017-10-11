@@ -7,6 +7,7 @@ File: forcefield
 
 import math
 import numpy as np
+from .constants import *
 
 class ForceField:
     def __init__(self):
@@ -76,12 +77,11 @@ class ForceField:
             self.set_atom(a)
         
         
-    def pair(self,a,b):
-        r2 = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2
+    def pair(self,a,b,r2):
         if r2 > 0.00001:
             r2 = self.sigma2[a.p_index,b.p_index] / r2
             en = self.epsilon4[a.p_index,b.p_index] * (r2 ** 6 - r2 ** 3)
-            en += a.charge * b.charge / r2 ** 0.5 # Energy conversion missing
+            en += ELECTRIC_CONSTANT * a.charge * b.charge / r2 ** 0.5 # Energy conversion missing
             return en
         else:
             return 0.0
@@ -89,7 +89,7 @@ class ForceField:
     def one_atom(self,atom, container):
         en = 0.0
         for x in container.atoms:
-            en += self.pair(atom,x)
+            en += self.pair(atom, x, container.shortest_r2(atom,x))
         return en # Did not count periodic
         
     def box(self,box):
@@ -97,7 +97,7 @@ class ForceField:
         n = len(box.atoms)
         for i in range(n-1):
             for j in range(i+1,n):
-                en += self.pair(box.atoms[i],box.atoms[j])
+                en += self.pair(box.atoms[i], box.atoms[j], box.shortest_r2(box.atoms[i],box.atoms[j]))
         return en # Did not count periodic
 
     def interaction(self,adsorbent,lattice):

@@ -35,6 +35,9 @@ class Simulation:
         for i in range(n_step):
             self.single_run()
             
+    def calibrate(self,n_step):
+        pass
+    
     def reset(self):
         for step in self.steps:
             step.reset()
@@ -92,4 +95,15 @@ class GrandCanonicalSimulation(Simulation):
         # self.record_en.append(self.ff.interaction(self.adsorbent,self.lattice)+self.ff.box(self.adsorbent) )
         self.record_adsorb.append(len(self.adsorbent.atoms))
     
-
+class GibbsEnsembleSimulation(Simulation):
+    def __init__(self):
+        Simulation.__init__(self)
+        self.temperature = 273.15
+        self.pressure = 1.0
+        self.d_max = 1.0
+        self.d_logV = 0.1
+        self.mass = 1.0
+        self.p_step = []
+        
+    def init(self, lattice_file, ff_file, a_type):
+        pass

@@ -132,7 +132,24 @@ class Lattice:
         atom.x = new_coord[0]
         atom.y = new_coord[1]
         atom.z = new_coord[2]
-
+    
+    def shortest_r2(self,a,b):
+        dx = a.x - b.x
+        dy = a.y - b.y
+        dz = a.z - b.z
+        if dx > self.a/2:
+            dx -= self.a/2
+        if dx < - self.a/2:
+            dx += self.a/2
+        if dy > self.b/2:
+            dy -= self.b/2
+        if dy < - self.b/2:
+            dy += self.b/2
+        if dz > self.c/2:
+            dz -= self.c/2
+        if dz < - self.c/2:
+            dz += self.c/2
+        return dx**2 + dy**2 + dz**2
 
 # Class for adsorbents in lattice box
 class Adsorbent:
@@ -163,6 +180,23 @@ class Adsorbent:
         atom.y = new_coord[1]
         atom.z = new_coord[2]
 
+    def shortest_r2(self,a,b):
+        dx = a.x - b.x
+        dy = a.y - b.y
+        dz = a.z - b.z
+        if dx > self.a/2:
+            dx -= self.a/2
+        if dx < - self.a/2:
+            dx += self.a/2
+        if dy > self.b/2:
+            dy -= self.b/2
+        if dy < - self.b/2:
+            dy += self.b/2
+        if dz > self.c/2:
+            dz -= self.c/2
+        if dz < - self.c/2:
+            dz += self.c/2
+        return dx**2 + dy**2 + dz**2
 
 # Lattice for adsorbent in another box
 class Box:
@@ -170,9 +204,11 @@ class Box:
         self.atoms = []
         self.side = 0.0
         self.volume = 0.0
-    
-    def change_volume(self,d_volume = 0.0, d_log_volume = 0.0):
-        pass
+        
+    def init(self, side, n_particle):
+        self.side = side
+        self.volume = side ** 3
+        
         
     def check(self,atom):
         while atom.x > self.side:
@@ -188,3 +224,21 @@ class Box:
         while atom.z < 0:
             atom.z += self.side
         
+    def shortest_r2(self, a, b):
+        '''Return the shortest distance of two atom with'''
+        dx = a.x - b.x
+        dy = a.y - b.y
+        dz = a.z - b.z
+        if dx > self.side/2:
+            dx -= self.side/2
+        if dx < - self.side/2:
+            dx += self.side/2
+        if dy > self.side/2:
+            dy -= self.side/2
+        if dy < - self.side/2:
+            dy += self.side/2
+        if dz > self.side/2:
+            dz -= self.side/2
+        if dz < - self.side/2:
+            dz += self.side/2
+        return dx**2 + dy**2 + dz**2
